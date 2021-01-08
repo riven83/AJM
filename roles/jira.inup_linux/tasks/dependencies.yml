@@ -1,0 +1,23 @@
+- name: Dependencies for JIRA (Debian/Ubuntu)
+  apt: 
+    pkg:
+    - openjdk-8-jdk
+    - openjdk-8-jdk-headless
+    - lsb
+  when: 
+    - ansible_facts['os_family'] == "Ubuntu" or
+      ansible_facts['os_family'] == "Debian"
+
+- name: Dependencies for JIRA (CeontOS/RHEL)
+  yum: 
+    name:
+      - openjdk-8-jdk
+      - openjdk-8-jdk-headless
+      - lsb
+    state: present
+  when: 
+    - ansible_facts['os_family'] == "RedHat" or 
+      ansible_facts['os_family'] == "CentOS"
+
+- name: Update facts
+  action: setup 

@@ -1,0 +1,48 @@
+- name: Getting datetime for file naming
+  set_fact: 
+    datetime_suffix: "{{ ansible_date_time.iso8601_basic }}"
+
+- name: Create backup folder if not exists
+  file:
+    path: "{{ jira_bkp_linux }}/JIRA_{{ datetime_suffix }}"
+    state: directory
+    mode: 0777
+  become: yes
+
+- name: Compressing JIRA install
+  archive:
+    path: "{{ jira_install_linux }}"
+    dest: "{{ jira_bkp_linux }}/JIRA_{{ datetime_suffix }}/jira_install_backup.tgz"
+  become: yes
+
+- name: Compressing JIRA home
+  archive:
+    path: "{{ jira_home_linux }}"
+    dest: "{{ jira_bkp_linux }}/JIRA_{{ datetime_suffix }}/jira_home_backup.tgz"
+  become: yes
+
+- name: Dump DB (MSSQL)
+  command: sqlcmd -S {{ db_server_name }} -U SA -Q "BACKUP DATABASE [{{ db_name }}] TO DISK = N'{{ jira_bkp_linux }}/JIRA_{{ datetime_suffix }}/jira_db.bak' WITH NOFORMAT, NOINIT, NAME = '{{ db_name }} backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
+  args:  
+    creates: '{{ jira_bkp_linux }}/JIRA_{{ datetime_suffix }}/jira_db.bak'
+  when: item == 'mssql'
+  with_items:
+    - "{{ db_type }}"
+ 
+- name: Compressing DB (MSSQL) 
+  archive:
+    path: "{{ jira_bkp_linux }}/JIRA_{{ datetime_suffix }}/jira_db.bak"
+    dest: "{{ jira_bkp_linux }}/JIRA_{{ datetime_suffix }}/jira_db.tgz"
+    remove: yes
+  become: yes
+  when: item == 'mssql'
+  with_items:
+    - "{{ db_type }}"
+
+- name: Dump DB (Postgres)
+  command: pg_dump -f '{{ jira_bkp_linux }}/JIRA_{{ datetime_suffix }}/jira_db.tgz' -d -Z6 {{ db_name }}
+  args:  
+    creates: "{{ jira_bkp_linux }}/JIRA_{{ datetime_suffix }}/jira_db.tgz"
+  when: item == 'postgres'
+  with_items:
+    - "{{ db_type }}"

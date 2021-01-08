@@ -1,0 +1,53 @@
+- name: Check if TEMP folder exists
+  stat:
+    path: "{{ jira_tmp_linux }}"
+  register: tmp_to_check
+
+- name: Create TEMP folder if not exists
+  file:
+    path: "{{ jira_tmp_linux }}"
+    state: directory
+    mode: 0777
+    group: all
+    owner: all
+  when:
+    - tmp_to_check.stat.exists == false
+
+- name: Check if INSTALL folder exists
+  stat:
+    path: "{{ jira_install_abs_linux }}"
+  register: install_to_check
+
+- name: Create INSTALL folder if not exists
+  file:
+    path: "{{ jira_install_abs_linux }}"
+    state: directory
+  when:
+    - install_to_check.stat.exists == False
+
+- name: Check if Jira version folder in install folder exists
+  stat:
+    path: "{{ jira_install_abs_linux }}/JIRA_{{ jira_version }}"
+  register: version_to_check
+
+- name: Create Jira version folder in install folder if not exists
+  file:
+    path: "{{ jira_install_abs_linux }}/JIRA_{{ jira_version }}"
+    state: directory
+  when:
+    - version_to_check.stat.exists == False
+    - ajm_action == "install" 
+      or ajm_action == "upgrade"
+
+- name: Check if Backups folder exists
+  stat:
+    path: "{{ jira_bkp_linux }}"
+  register: bkp_to_check
+
+- name: Create Backup folder if not exists
+  file:
+    path: "{{ jira_bkp_linux }}"
+    state: directory
+  when:
+    - bkp_to_check.stat.exists == False
+    - ajm_backup == True

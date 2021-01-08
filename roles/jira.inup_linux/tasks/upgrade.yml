@@ -1,0 +1,13 @@
+- name: Copy email template
+  copy: 
+    src: '{{ jira_install_linux }}/atlassian-jira/WEB-INF/classes/templates/email'
+    dest: '{{ jira_install_abs_linux }}/atlassian-jira/WEB-INF/classes/templates/email'
+  become: yes
+  when: ajm_email_template_copy == True
+
+- name: Copy cacert
+  copy: 
+    src: '{{ jira_install_linux }}/lib/security/cacerts'
+    dest: '{{ jira_install_abs_linux }}/lib/security/cacerts'
+  become: yes
+  when: ajm_cacert_copy == True

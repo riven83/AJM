@@ -1,0 +1,32 @@
+#!/bin/bash
+
+RUN_AS={{ jira_user }}
+BIN={{ jira_install_abs_linux }}/JIRA_{{ jira_version }}/bin
+
+jiractl() {
+    op=$1
+    if [ "x$USER" != "x$RUN_AS" ]; then
+        su - "$RUN_AS" -c "cd $BIN; ./${op}-jira.sh"
+    else
+        cd $BIN
+        ./${op}-jira.sh
+    fi
+}
+
+case "$1" in
+    start)
+        jiractl start
+        ;;
+    stop)
+        jiractl stop
+        ;;
+    restart)
+        jiractl stop
+        sleep 10
+        jiractl start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+esac
+
+exit 0

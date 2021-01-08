@@ -1,0 +1,21 @@
+- name: Copying Jira DB config file (MSSQL)
+  template: 
+    src: dbconfig_MSSQL.xml.j2
+    dest: '{{ jira_home_linux }}\dbconfig.xml'
+    owner: "{{ jira_user }}"
+    group: "{{ jira_group }}"
+    mode: 0664
+  when: 
+    - db_type == "mssql"
+  notify: Jira restart
+
+- name: Copying Jira DB config file (PostgreSQL)
+  template: 
+    src: dbconfig_POSTGRESQL.xml.j2
+    dest: '{{ jira_home_linux }}\dbconfig.xml'
+    owner: "{{ jira_user }}"
+    group: "{{ jira_group }}"
+    mode: 0664
+  when: 
+    - db_type == "postgresql"
+  notify: Jira restart

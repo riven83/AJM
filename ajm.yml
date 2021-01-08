@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become_method: runas
+
+  roles:
+    - role: jira.inup_linux
+      when: 
+        - ansible_facts['os_family'] == "Ubuntu" or
+          ansible_facts['os_family'] == "Debian" or
+          ansible_facts['os_family'] == "RedHat" or 
+          ansible_facts['os_family'] == "CentOS"
+
+    - role: jira.inup_win
+      when:
+        - ansible_facts['os_family'] == "Windows"

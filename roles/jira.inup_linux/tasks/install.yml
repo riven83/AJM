@@ -1,0 +1,79 @@
+- name: Downloading new Jira application
+  get_url: 
+    url: "{{ jira_download_linux }}"
+    dest: '{{ jira_tmp_linux }}/{{ jira_exec_linux }}'
+    owner: root
+    group: root
+    mode: 0777  
+  become: yes
+
+- name: Copy Jira Template
+  template: 
+    src: response.varfile.j2
+    dest: '{{ jira_install_abs_linux }}/response.varfile'
+
+- name: Copying Jira jira-config.properties
+  copy: 
+    src: jira-config.properties
+    dest: '{{ jira_home_linux }}\'
+  when: ajm_action == "upgrade"
+
+- name: Install Jira
+  command: '{{ jira_tmp_linux }}/{{ jira_exec_linux }} -q -varfile {{ jira_install_abs_linux }}/response.varfile'
+  become: yes
+
+- name: Remove Jira binary
+  file:
+    path: '{{ jira_tmp_linux }}/{{ jira_exec_linux }}'
+    state: absent
+  become: yes
+
+- name: Copy service script
+  template:
+    src: jira.service.j2
+    dest: /lib/systemd/system/jira.service
+    owner: root
+    group: root
+    mode: 0755
+  become: yes
+
+- name: Remove init.d script
+  file:
+    path: /etc/init.d/jira
+    state: absent
+  become: yes
+
+- name: Copy the init.d script
+  template:
+    src: jira.j2
+    dest: /etc/init.d/jira
+    owner: root
+    group: root
+    mode: 0755
+  become: yes
+
+- name: Copy Email template and cacert
+  include: upgrade.yml
+  when: 
+    - ajm_action == "upgrade"
+
+- name: Database steps
+  include: database.yml
+  when:
+    - ajm_action == "upgrade"
+
+- name: chown Jira install directory
+  command: chown {{ jira_user }}:{{ jira_user_group }} {{ jira_install_abs_linux }}
+  become: yes
+
+- name: chmod Jira install directory
+  command: chmod -R u=rwx,g=rx,o=rx {{ jira_install_abs_linux }}
+  become: yes
+
+- name: chown Jira home directory
+  command: chown {{ jira_user }}:{{ jira_user_group }} {{ jira_home_linux }}
+  become: yes
+
+- name: chmod Jira home directory
+  command: chmod -R u=rwx,g=rx,o=rx {{ jira_home_linux }}
+  become: yes

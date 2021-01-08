@@ -1,0 +1,57 @@
+---
+jira_user_group: jira
+
+jira_lang: en
+jira_rmi: 8005
+jira_http_port: 8080
+
+# variables used to chose the type and version of the Jira application
+jira_type: core
+jira_version: 8.8.0
+jira_arc: x64
+
+# Use this var list to add properties into the jira-config.properties file
+# when the action is UPGRADE and the NO_FILE_CREATION is equal to False
+jira_config_properties: 
+- jira.export.excel.enabled=true
+
+# The supported DB are MsSQL and PostgreSQL
+# To set one use:
+#   - mssql
+#   - postgresql
+# Empty to use the default H2 database
+db_type:
+db_port: 59890
+db_name: DB_name
+db_server: DB_SERVER
+#MS SQL
+db_host_mssql: jdbc:sqlserver://{{ db_server }}:{{ db_port }};databaseName={{ db_name }}
+db_driver_class_mssql: com.microsoft.sqlserver.jdbc.SQLServerDriver
+#PostgreSQL
+db_host_postgresql: jdbc:postgresql://{{ db_server }}:{{ db_port }}/{{ db_name }}
+db_driver_class_postgresql: org.postgresql.Driver
+
+db_user: jiradbuser
+db_pass: password
+
+jira_user: jira
+jira_group: jira
+# created with:
+# python -c 'import crypt; print crypt.crypt("This is my Password", "$1$SomeSalt$")'
+jira_user_pwd: $1$SomeSalt$UqddPX3r4kH3UL5jq5/ZI
+
+# Possible actions could be:
+# - install
+# - upgrade
+# - backup
+ajm_action: install
+
+# if this var is equal to True a backup
+# will be performed before to upgrade Jira
+ajm_backup: True
+
+# vars to enable the copy of:
+# - email template folder
+# - cacert folder
+ajm_email_template_copy: False
+ajm_cacert_copy: False

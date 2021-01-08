@@ -1,0 +1,44 @@
+# Install dependencies
+- include: dependencies.yml
+  when: ajm_action == "install"
+
+# Check for needed JIRA folders
+- include: needed_folders.yml
+
+# STOP Jira
+- include: stop_jira.yml
+  when: 
+    - ajm_action == "upgrade" or
+      ajm_action == "backup"
+
+# BACKUP
+- include: backup.yml
+  when: 
+    - ajm_action == "backup"
+
+# INSTALL
+- include: install.yml
+  when: 
+    - ajm_action == "install"
+
+# UPGRADE with backup
+- include: "{{ item }}"
+  with_items:
+    - backup.yml
+    - install.yml
+    - upgrade.yml
+  when: 
+  - ajm_action == "upgrade"
+  - ajm_backup == True
+
+# UPGRADE without backup
+- include: "{{item}}"
+  with_items:
+    - install.yml
+    - upgrade.yml
+  when: 
+  - ajm_action == "upgrade"
+  - ajm_backup == False
+
+# START Jira
+- include: start_jira.yml

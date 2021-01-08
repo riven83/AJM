@@ -1,0 +1,37 @@
+- name: Copying JDK zip file
+  win_copy: 
+    src: openlogic-openjdk-8u262-b10-windows-x64.zip
+    dest: '{{ ajm_java_folder }}\'
+  when: 
+    - install_jdk == True
+
+- name: Extract JDK
+  win_shell: Microsoft.PowerShell.Archive\Expand-Archive –LiteralPath '{{ ajm_java_folder }}\openlogic-openjdk-8u262-b10-windows-x64.zip' –DestinationPath “{{ ajm_java_folder }}”
+  when: 
+    - install_jdk == True
+
+- name: Set JDK_HOME as an environment variable
+  win_environment:
+    state: present
+    name: JAVA_HOME
+    value: "C:\\Progra~1\\JAVA\\jdk-8"
+    level: machine
+  when: 
+    - install_jdk == True
+
+- name: Set JRE_HOME as an environment variable
+  win_environment:
+    state: present
+    name: JRE_HOME
+    value: "C:\\Progra~1\\JAVA\\jdk-8"
+    level: machine
+  when: 
+    - install_jdk == True
+
+- name: Set jdk in PATH
+  win_path:
+    state: present
+    elements: "C:\\Progra~1\\JAVA\\jdk-8"
+    scope: machine
+  when: 
+    - install_jdk == True

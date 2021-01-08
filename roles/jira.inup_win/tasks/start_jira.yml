@@ -1,0 +1,4 @@
+- name: Starting JIRA service
+  win_service:
+      name: "{{ jira_service_name }}"
+      state: started

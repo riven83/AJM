@@ -1,0 +1,4 @@
+- name: Start jira
+  command: "{{ jira_install_linux }}/bin/start-jira.sh"
+  become: yes
+  when: ajm_action == "backup"

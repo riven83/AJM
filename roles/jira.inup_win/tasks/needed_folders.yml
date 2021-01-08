@@ -1,0 +1,52 @@
+- name: Check if INSTALL folder exists
+  win_stat:
+    path: "{{ jira_install_abs_win }}"
+  register: dir_install
+
+- name: Create INSTALL folder if not exists
+  win_file:
+    path: "{{ jira_install_abs_win }}"
+    state: directory
+    when: 
+      - dir_install.stat.exists == False
+
+- name: Check if BACKUP folder exists
+  win_stat:
+    path: "{{ jira_bkp_win }}"
+  register: dir_bkp
+  when: 
+    - ajm_action == "upgrade" or ajm_action == "backup"
+
+- name: Create BACKUP folder if not exists
+  win_file:
+    path: "{{ jira_bkp_win }}"
+    state: directory
+    when: 
+      - ajm_action == "upgrade" 
+        or ajm_action == "backup"
+      - dir_bkp.stat.exists == False
+
+- name: Check if Jira Temp folder exists
+  win_stat:
+    path: "{{ jira_temp_win }}"
+  register: dir_temp
+
+- name: Create Jira Temp folder if not exists
+  win_file:
+    path: "{{ jira_temp_win }}"
+    state: directory
+    when: dir_temp.stat.exists == False
+
+- name: Check if JAVA folder exists
+  win_stat:
+    path: "{{ ajm_java_folder }}"
+  register: dir_java
+  
+- name: Create JAVA folder if not exists
+  win_file:
+    path: "{{ ajm_java_folder }}"
+    state: directory
+    when: 
+      - dir_java.stat.exists == False
+  when: 
+    - install_jdk == True
